@@ -54,7 +54,7 @@ At the end of every session that changed a file, append one entry to prompt-log.
 Never backfill earlier sessions and never edit a past entry.
 
 ## Never include
-No credentials, API keys, tokens, personal data about other people, licensed or copyrighted material, or confidential employer information.
+No credentials, API keys, tokens, personal data about other people, licensed or copyrighted material, or confidential employer information, including client names, addresses, Social Security numbers, EINs, and other identifying information found on the clients' tax forms, tax notices, tax returns, or supporting tax documents. Do not include client financial statements, account balances, investment information, or transaction details, or internal firm materials, such as N&K workpapers, tax software, templates, procedures, or firm documents. 
 If I provide something that fits one of these categories, stop and tell me rather than committing it.
 
 ## Mistakes to avoid
