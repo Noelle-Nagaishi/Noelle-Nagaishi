@@ -13,3 +13,16 @@ The initial version of my personalized conventions was longer than necessary and
 
 **How the error was caught:**  
 I compared the draft with the course guidance, which emphasizes concise, specific instructions, and revised the file before committing it.
+## 2026-10-20
+
+**What I asked:**
+I asked Claude to explain my FX hedging scenario (Scenario 23, offshore-wind-cable), go over the Stage 1 brief requirements, coach me through the exposure section, and check what GitHub setup I was missing.
+
+**What AI produced:**
+Claude explained the hedge options, checked my 9% adverse-move calculation (about $1.7M shortfall from the 1.1807 forward), found that capabilities/fx-hedging/README.md was missing, and drafted that README for me to review.
+
+**What was wrong, if anything:**
+My exposure calculation used a 9% adverse move in EURUSD, which I took from the instructor's example without a source or justification.
+
+**How the error was caught:**
+Claude pointed out during review that a CFO would ask "why 9%?" I will either list it as an assumption to test in Stage 4 or cite EURUSD's historical volatility.
