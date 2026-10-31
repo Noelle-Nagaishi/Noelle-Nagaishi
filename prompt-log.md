@@ -33,10 +33,10 @@ Claude pointed out during review that a CFO would ask "why 9%?" I will either li
 I asked Claude to read the Stage 1 page, walk me through what I needed to do in my GitHub repo, and draft the executive brief for Scenario 23 (offshore-wind-cable).
 
 **What AI produced:**
-Claude checked my repo setup, drafted a 566-word brief with frontmatter, assumptions, hypothesis, and roadmap, and walked me through committing it to docs/briefs/. I reviewed and edited it before committing.
+Claude checked my repo setup, drafted the executive brief, restructured it to match the course memo template, and walked me through committing it to docs/briefs/. I reviewed and edited it before committing.
 
 **What was wrong, if anything:**
-The brief uses a spot rate of about 1.16 as a placeholder, not a sourced quote, and the 10% adverse move is also unsourced. My first paste into GitHub also lost the frontmatter and Markdown formatting.
+The brief uses a spot rate of about 1.16 as a placeholder, not a sourced quote, and the 10% adverse move is also unsourced. My first paste into GitHub lost the frontmatter and Markdown formatting, and a later paste was cut off partway through, so the committed brief was missing its assumptions, hypothesis, and next-steps sections. The first version also didn't follow the course memo template.
 
 **How the error was caught:**
-Claude flagged the unsourced spot rate and the 10% move; I'll replace the spot with a timestamped quote in Stage 4, and either cite EURUSD's historical volatility or list the 10% as an assumption. I caught the formatting problem by checking the Preview tab before committing.
+Claude flagged the unsourced spot rate and the 10% move; I'll replace the spot with a timestamped quote in Stage 4 and either cite EURUSD's historical volatility or list the 10% as an assumption. I caught the formatting problem by checking the Preview tab, and noticed the cut-off brief when I went to add an assumption and the section wasn't there. When I asked Claude to check the brief against the assignment, we compared it to template-decision-memo.md, and I restructured it into the template's sections (Executive Summary, Background & Objectives, Methods, Limitations & Next Steps, References) before final submission.
