@@ -26,3 +26,17 @@ My exposure calculation used a 9% adverse move in EURUSD, which I took from the 
 
 **How the error was caught:**
 Claude pointed out during review that a CFO would ask "why 9%?" I will either list it as an assumption to test in Stage 4 or cite EURUSD's historical volatility.
+
+## 2026-10-30
+
+**What I asked:**
+I asked Claude to read the Stage 1 page, walk me through what I needed to do in my GitHub repo, and draft the executive brief for Scenario 23 (offshore-wind-cable).
+
+**What AI produced:**
+Claude checked my repo setup, drafted a 566-word brief with frontmatter, assumptions, hypothesis, and roadmap, and walked me through committing it to docs/briefs/. I reviewed and edited it before committing.
+
+**What was wrong, if anything:**
+The brief uses a spot rate of about 1.16 as a placeholder, not a sourced quote, and the 10% adverse move is also unsourced. My first paste into GitHub also lost the frontmatter and Markdown formatting.
+
+**How the error was caught:**
+Claude flagged the unsourced spot rate and the 10% move; I'll replace the spot with a timestamped quote in Stage 4, and either cite EURUSD's historical volatility or list the 10% as an assumption. I caught the formatting problem by checking the Preview tab before committing.
