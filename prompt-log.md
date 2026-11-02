@@ -40,3 +40,17 @@ The brief uses a spot rate of about 1.16 as a placeholder, not a sourced quote, 
 
 **How the error was caught:**
 Claude flagged the unsourced spot rate and the 10% move; I'll replace the spot with a timestamped quote in Stage 4 and either cite EURUSD's historical volatility or list the 10% as an assumption. I caught the formatting problem by checking the Preview tab, and noticed the cut-off brief when I went to add an assumption and the section wasn't there. When I asked Claude to check the brief against the assignment, we compared it to template-decision-memo.md, and I restructured it into the template's sections (Executive Summary, Background & Objectives, Methods, Limitations & Next Steps, References) before final submission.
+
+## 2026-11-02
+
+**What I asked:**
+I gave Claude my professor's Stage 1 feedback and asked it to help replace the placeholder spot rate with a dated, sourced one and update every figure that depended on it.
+
+**What AI produced:**
+Claude found the ECB reference rate for 30 October 2026 (1.1172), listed each figure that used the 1.16 placeholder with its formula, and recomputed them: receivable value $17.9M, 10% downside $16.1M, the put's net floor $17.5M, and the forward-over-put gap $1.41M. It drafted the updated brief and explained that the 1.205 breakeven doesn't depend on spot. I checked the rate against the ECB and a Wise quote (1.1167), checked the math, and changed the brief's date to 2026-10-30.
+
+**What was wrong, if anything:**
+The original brief used 1.16 as a placeholder spot without a source or date. With the real spot, the gap between the forward and the put's worst case was $1.41M, about double my original $720K. The brief's frontmatter date also didn't match the day I actually wrote it.
+
+**How the error was caught:**
+My professor flagged the placeholder spot in the Stage 1 feedback. I noticed the date mismatch myself while making the fix.
