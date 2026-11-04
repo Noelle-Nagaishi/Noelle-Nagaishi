@@ -54,6 +54,21 @@ BRAND FORMATTING — applied per docs/_branding/design.json (v1.0.0)
 ## 1. Problem Statement
 
 ## 2. Inputs: Named-Range Contract
+Market inputs are indicative placeholders, replaced with live market data at Stage 4; contract terms are fixed.
+
+| Named range | Description | Value | Unit | Source today | Stage-4 source |
+|---|---|---|---|---|---|
+| `FC_AMT` | Foreign-currency receivable owed by the Danish wind developer | 16,000,000 | EUR | Scenario 23 (contract amount) | No change (fixed by contract) |
+| `S0_in` | Spot rate at inception (30 Oct 2026)  | 1.1172 | USD per EUR | ECB reference rate, 30 Oct 2026 | Live timestamped EURUSD spot quote |
+| `F0_in` | Forward exchange rate for exchanging EUR to USD on the maturity date; quoted in USD per EUR| 1.1807  |  USD per EUR | Scenario 23, indicative 365-day forward | Live 1-year forward quote from a bank or dealer |
+| `R_USD` | Annual USD interest rate for the money market hedge | 4.36% | Annual % | U.S. Treasury 1-year par yield, 30 Oct 2026 | Fed H.15 or 12-month term SOFR |
+| `R_FC` | Annual foreign currency (EUR) interest rate for the money market hedge| 3.306% | Annual % | 12-month Euribor, euribor-rates.eu, 30 Oct 2026 | 12-month Euribor from EMMI or the ECB on the refresh date |
+| `K_PUT` | Strike exchange rate of the EUR put option (rate at which EUR can be sold for USD) | 1.1172 | USD per EUR | Set at spot (S0_in) per Scenario 23 | Reset to the refreshed spot |
+| `K_CALL` | Strike of the EUR call option; modeled for comparison only, not part of the recommended hedge | 1.1172 | USD per EUR | Set at spot (S0_in) per Scenario 23 | Reset to the refreshed spot |
+| `PREM_PUT` | Premium paid upfront at inception to purchase the EUR put option | 0.0245 | USD per EUR | Scenario 23 | A live dealer quote for the at-spot 1-year put |
+| `PREM_CALL` | Premium for the at-spot EUR call option, paid upfront at inception; comparison only | 0.0448 | USD per EUR | Scenario 23 | Live dealer quote for the at-spot 1-year call |
+| `T_DAYS` | Number of days until the receivable is due and the hedge matures | 365 | Days | Scenario 23 (contract terms) | No change (fixed by contract) |
+| `BASIS` | Day-count denominator for both interest rates (ACT/360) | 360 | Days | Money-market convention | No change |
 
 ## 3. Tab Architecture
 
