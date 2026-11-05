@@ -43,8 +43,8 @@ BRAND FORMATTING — applied per docs/_branding/design.json (v1.0.0)
 | **Created by** | Noelle Nagaishi |
 | **Updated by** | Noelle Nagaishi |
 | **Date Created** | 2026-11-04 |
-| **Date Updated** | 2026-11-04 |
-| **Version** | 0.1 |
+| **Date Updated** | 2026-11-05 |
+| **Version** | 1.0 |
 | **LLM Used** (optional) | Claude (Anthropic): reviewed my draft for gaps |
 | **Role** | Treasury Analyst / FP&A Analyst |
 | **Audience** | CFO / Director of Treasury |
@@ -52,6 +52,7 @@ BRAND FORMATTING — applied per docs/_branding/design.json (v1.0.0)
 
 ---
 ## 1. Problem Statement
+The company is owed EUR 16,000,000 by a Danish wind developer, payable in 365 days. At the spot rate at inception of 1.1172 USD per EUR (30 Oct 2026), the receivable is worth approximately $17.9 million, but each $0.01 decline in the EUR-USD exchange rate reduces its USD value by $160,000. The goal is to protect the receivable's USD value at an acceptable cost. The model compares a forward hedge, a money market hedge, and a purchased put against leaving the receivable unhedged, with settlement spot rates within ±5% of the initial spot rate, and includes a purchased call for comparison. These results support the Stage 5 decision memo. 
 
 ## 2. Inputs: Named-Range Contract
 Market inputs are indicative placeholders, replaced with live market data at Stage 4; contract terms are fixed.
@@ -71,6 +72,21 @@ Market inputs are indicative placeholders, replaced with live market data at Sta
 | `BASIS` | Day-count denominator for both interest rates (ACT/360) | 360 | Days | Money-market convention | No change |
 
 ## 3. Tab Architecture
+The workbook has 9 tabs, in the order below. Inputs are shaded yellow, outputs are gray, and every calculation tab reads only from named ranges.
+
+| Tab | Purpose | Contents |
+|---|---|---|
+| Cover | Identify the model, its owner, and the scenario being analyzed | Title, author, date, version, scenario (Scenario 23) |
+| Legend/Key | Explain how to recognize inputs, outputs and formulas | Color code: yellow = inputs, gray = outputs, black = formulas |
+| Inputs | Provide the single place where model input values are changed, and all other tabs reference them through named ranges | The 11 named ranges from §2, with units and sources |
+| Summary | Give the CFO a concise view of the main results and provide calculation factors | §5.1 derived values and the §8.1 summary results |
+| Forward | Show how selling the receivable forward locks its USD value | §5.2: USD_FWD |
+| Money Market | Show how borrowing EUR, converting to USD, and investing replicates a locked USD receipt | §5.3: the three steps as separate cells, F_IMPLIED, F_GAP, USD_GAP |
+| Options | Show the put's protection and cost, with the purchased call's additional EUR exposure | §5.4 put and §5.5 call cells, including PUT_BREAKEVEN |
+| Sensitivity | Compare strategy outcomes as the settlement spot rate changes | §6 grid, sensitivity table, and chart |
+| Notes & Assumptions | Document the model's conventions, limitations, and supporting evidence | §4 assumptions; every source with its access date |
+
+Each named range refers to one authoritative cell or range. The Summary tab displays strategy results from formulas that reference the named outputs on their respective calculation tabs. It does not create duplicate definitions of those names.
 
 ## 4. Assumptions & Constraints
 
@@ -126,17 +142,18 @@ USD_GAP ≈ +$831,000 (positive means the forward beats the money-market hedge);
 Each step is a separate cell; do not combine into one nested formula.
 
 ### 5.4 Put option hedge
-Purchase a EUR put to establish a minimum USD value for the receivable while retaining upside, after deducting the premium, which is carried forward to maturity.
+Purchase a EUR put to establish a minimum USD value for the receivable while retaining upside; the premium is carried forward to maturity.
 
 ```
 PUT_PAYOFF = FC_AMT × MAX(K_PUT − S_T, 0)
 PUT_COST_T = PREM_PUT × FC_AMT × USD_FACTOR
 PUT_FLOOR = FC_AMT × K_PUT − PUT_COST_T
 USD_PUT = USD_UNHEDGED + PUT_PAYOFF - PUT_COST_T
+PUT_BREAKEVEN = F0_in + PUT_COST_T / FC_AMT
 ```
 
 ### 5.5 Call option comparison
-Purchase a EUR call and calculate its standalone payoff and the combined proceeds of the receivable for comparison. This position does not establish a downside floor, and a collar is out of scope.
+Purchase a EUR call and calculate its standalone payoff, as well as the combined proceeds from the receivable, for comparison. This position does not establish a downside floor, and a collar is out of scope.
 
 ```
 CALL_PAYOFF = FC_AMT × MAX(S_T − K_CALL, 0)
@@ -178,7 +195,7 @@ One row per S_T, with these columns:
 - **X-axis:** S_T (USD per EUR) plotted at its numerical values
 - **Y-axis:** USD proceeds at maturity
 - **Series:** USD_UNHEDGED, USD_FWD, USD_MM, USD_PUT, and USD_CALL
-- **What the CFO should see:** USD_FWD is flat and highest in every row except +5%, while USD_MM is also flat but at a lower level. At +5%, the call comparison edges past the forward by about $23,000 USD, since the call adds euro exposure, not protection, which supports keeping it out of the recommendation. USD_PUT has a net floor of approximately $17,465,871 USD below K_PUT and a kink at S_T = K_PUT, above which proceeds rise with spot. The put's breakeven against the forward is approximately 1.2063 USD per EUR (including the premium's financing cost), outside the upper endpoint of 1.1731 (1.17306 at full precision).
+- **What the CFO should see:** USD_FWD is flat and highest in every row except +5%, while USD_MM is also flat but at a lower level. At +5%, the call comparison edges past the forward by about $23,000 USD, since the call adds euro exposure rather than protection, which supports keeping it out of the recommendation. USD_PUT has a net floor of approximately $17,465,871 USD below K_PUT and a kink at S_T = K_PUT, above which proceeds rise with spot. The put's breakeven against the forward is approximately 1.2063 USD per EUR (including the premium's financing cost), outside the upper endpoint of 1.1731 (1.17306 at full precision).
 
 ## 7. Validation Rules
 ### 7.1 Structural checks
@@ -208,13 +225,33 @@ Grid precision: Do not round S_T grid values; the +5% row is 1.17306 at full pre
 ### 7.3 Logic checks
 - **Parity (build check):** `USD_MM` = `FC_AMT × F_IMPLIED` within $1. A failure would mean inconsistent formulas, inputs, or premature rounding between the money market and implied-forward calculations.
 - **Parity (market finding):** Report USD_GAP = USD_FWD - USD_MM, approximately +$831,174 USD at base case, as the forward's proceeds advantage over the money market hedge. A nonzero gap is a market finding, not a build error.
-- **Put kink:** at S_T = K_PUT, `USD_PUT` = `PUT_FLOOR`. This checks that the option payoff reaches zero at the strike and joins the rising proceeds segment continuously.
+- **Put kink:** at S_T = K_PUT, `USD_PUT` = `PUT_FLOOR`. This ensures that the option payoff reaches zero at the strike and continuously joins the rising-proceeds segment.
 - **Put floor holds:** In every row where S_T ≤ K_PUT, USD_PUT must equal PUT_FLOOR within $1. No scenario may produce USD_PUT below that floor.
-- **Put breakeven:** F0_in + PUT_COST_T / FC_AMT must be approximately 1.2063 USD per EUR. At that rate, USD_PUT equals USD_FWD. Above it, the put strategy produces higher proceeds. This threshold includes the financing cost of the premium and lies outside the ±5% grid.
+- **Put breakeven:** F0_in + PUT_COST_T / FC_AMT must be approximately 1.2063 USD per EUR. At that rate, USD_PUT equals USD_FWD. Above it, the put strategy produces higher proceeds. This threshold includes the premium's financing cost and falls outside the ±5% grid.
 - **Call comparison:** Above K_CALL, USD_CALL must increase by 2 x FC_AMT x ΔS_T, since both the receivable and the call gain value. The forward must also be highest in the first 10 grid rows, with the call comparison exceeding it in the +5% row.
 - **Flat lines:** USD_FWD and USD_MM must each remain identical across all 11 rows since neither depends on S_T.
 
 ## 8. Outputs
+All output cells are formulas, shaded gray, and use the names below exactly.
+
+### 8.1 Summary results (single cells)
+
+| Output name | Description | Section |
+|---|---|---|
+| `USD_FWD` | Locked USD proceeds from the forward hedge | §5.2 |
+| `USD_MM` | Locked USD proceeds from the money market hedge | §5.3 |
+| `F_IMPLIED` | Parity-implied forward exchange rate, in USD per EUR | §5.3 |
+| `USD_GAP` | Forward proceeds minus money market proceeds; a positive value favors the forward | §5.3 |
+| `PUT_FLOOR` | Minimum USD proceeds under the put hedge, net of the premium carried forward to maturity | §5.4 |
+| `PUT_BREAKEVEN` | Future spot rate at which put-hedged proceeds equal forward proceeds, in USD per EUR | §5.4; §7.3 |
+| `PUT_COST_T` | Put premium cost carried forward to maturity at R_USD, in USD | §5.4|
+| `CALL_COST_T`| Call premium cost carried forward to maturity at R_USD, in USD | §5.5 |
+
+### 8.2 Sensitivity table
+The 11-row sensitivity table defined in §6.2 contains S_T, USD_UNHEDGED, USD_FWD, USD_MM, USD_PUT, and USD_CALL, and appears on the Sensitivity tab.
+
+### 8.3 Chart
+The line chart defined in §6.3 plots the unhedged case and the USD proceeds of four strategies against S_T and appears on the Sensitivity tab.
 
 ---
 
@@ -223,3 +260,5 @@ Grid precision: Do not round S_T grid values; the +5% row is 1.17306 at full pre
 | Version | Date | Author | Change |
 |---------|------|--------|--------|
 | 0.1 | 2026-11-04 | Noelle Nagaishi | Initial skeleton |
+| 0.2 | 2026-11-05 | Noelle Nagaishi | Drafted §1–§8 |
+| 1.0 | 2026-11-05 | Noelle Nagaishi | Revised after Claude review: call beats forward at +5%, put breakeven 1.205 → 1.2063, grid-precision check figure |
