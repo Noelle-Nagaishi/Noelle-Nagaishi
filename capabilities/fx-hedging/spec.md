@@ -86,18 +86,14 @@ The workbook has 9 tabs, in the order below. Inputs are shaded yellow, outputs a
 | Sensitivity | Compare strategy outcomes as the settlement spot rate changes | §6 grid, sensitivity table, and chart |
 | Notes & Assumptions | Document the model's conventions, limitations, and supporting evidence | §4 assumptions; every source with its access date |
 
-Each named range refers to one authoritative cell or range. The Summary tab displays strategy results from formulas that reference the named outputs on their respective calculation tabs. It does not create duplicate definitions of those names.
-
 ## 4. Assumptions & Constraints
 
 - **Quote convention:** All exchange rates are quoted in USD per EUR; a higher number means a stronger euro.
 - **Day count and interest:** Both R_USD and R_FC use simple interest (r x T_DAYS / BASIS, where BASIS = 360 under ACT/360). The 1-year Treasury yield is treated as an ACT/360 rate as a simplifying assumption.
-- **Forward Parity:** The parity implied formula (F_IMPLIED) = S0_in x (1 + R_USD x T_DAYS / BASIS) / (1 + R_FC x T_DAYS / BASIS). The model keeps the market forward input (F0_in) and reports the difference from the parity-implied forward as a market finding rather than a build error. At current inputs, the difference in USD proceeds from the 16 million euro receivable is around $831,000 (the amount that the forward exceeds the money-market hedge).
-- **Option Premiums:** Premiums are quoted in USD per EUR, paid upfront at inception, and multiplied by the EUR notional with no contract multiplier. As a result, the $392,000 put premium becomes approximately $409,329 USD at maturity, yielding a net put floor of approximately $17,465,871 USD. This difference from the brief's $17,483,200 USD floor arises since the model includes the financing cost of the upfront premium. Put premium cost at maturity: PREM_PUT x FC_AMT x (1 + R_USD x T_DAYS / BASIS). Call premium cost at maturity: PREM_CALL x FC_AMT x (1 + R_USD x T_DAYS / BASIS).
+- **Forward parity:** The model keeps the market forward (`F0_in`) and reports its difference from the parity-implied forward (`F_IMPLIED`, §5.3) as a market finding rather than a build error.
+- **Option Premiums:** Premiums are quoted in USD per EUR, paid upfront at inception, and multiplied by the EUR notional with no contract multiplier. As a result, the $392,000 put premium becomes approximately $409,329 USD at maturity, yielding a net put floor of approximately $17,465,871 USD. This difference from the brief's $17,483,200 USD floor arises since the model includes the financing cost of the upfront premium. 
 - **Call Option:** The call option is included for comparison purposes. A collar is outside the model's scope. This deviates from the brief by treating the call as a separate comparison rather than combining it with the purchased put.
 - **Exclusions and payment assumption:** The model excludes transaction costs, bid-ask spread, counterparty and credit risk, taxes, and hedge accounting. It assumes that the customer pays the receivable in full and on time, which is consistent with the brief.
-- **Sensitivity Scenarios:** Future spot exchange rates (S_T) are tested on a fixed grid. No probabilities are assigned to the scenarios. Rather than forecasting or reporting expected values, they illustrate outcomes.
-
 
 ## 5. Calculation Flow
 S_T is the settlement spot rate for each row of the sensitivity grid (§6); USD_PUT, USD_CALL, and USD_UNHEDGED are calculated once per grid row. All other values are single cells.
@@ -153,7 +149,7 @@ PUT_BREAKEVEN = F0_in + PUT_COST_T / FC_AMT
 ```
 
 ### 5.5 Call option comparison
-Purchase a EUR call and calculate its standalone payoff, as well as the combined proceeds from the receivable, for comparison. This position does not establish a downside floor, and a collar is out of scope.
+Purchase a EUR call and calculate its standalone payoff and the combined proceeds from the receivable for comparison. This position does not establish a downside floor, and a collar is out of scope.
 
 ```
 CALL_PAYOFF = FC_AMT × MAX(S_T − K_CALL, 0)
@@ -224,10 +220,9 @@ Grid precision: Do not round S_T grid values; the +5% row is 1.17306 at full pre
 
 ### 7.3 Logic checks
 - **Parity (build check):** `USD_MM` = `FC_AMT × F_IMPLIED` within $1. A failure would mean inconsistent formulas, inputs, or premature rounding between the money market and implied-forward calculations.
-- **Parity (market finding):** Report USD_GAP = USD_FWD - USD_MM, approximately +$831,174 USD at base case, as the forward's proceeds advantage over the money market hedge. A nonzero gap is a market finding, not a build error.
 - **Put kink:** at S_T = K_PUT, `USD_PUT` = `PUT_FLOOR`. This ensures that the option payoff reaches zero at the strike and continuously joins the rising-proceeds segment.
 - **Put floor holds:** In every row where S_T ≤ K_PUT, USD_PUT must equal PUT_FLOOR within $1. No scenario may produce USD_PUT below that floor.
-- **Put breakeven:** F0_in + PUT_COST_T / FC_AMT must be approximately 1.2063 USD per EUR. At that rate, USD_PUT equals USD_FWD. Above it, the put strategy produces higher proceeds. This threshold includes the premium's financing cost and falls outside the ±5% grid.
+- **Put breakeven:** `PUT_BREAKEVEN` ≈ 1.2063; above it, the put beats the forward.
 - **Call comparison:** Above K_CALL, USD_CALL must increase by 2 x FC_AMT x ΔS_T, since both the receivable and the call gain value. The forward must also be highest in the first 10 grid rows, with the call comparison exceeding it in the +5% row.
 - **Flat lines:** USD_FWD and USD_MM must each remain identical across all 11 rows since neither depends on S_T.
 
