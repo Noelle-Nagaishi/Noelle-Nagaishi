@@ -43,8 +43,8 @@ BRAND FORMATTING — applied per docs/_branding/design.json (v1.0.0)
 | **Created by** | Noelle Nagaishi |
 | **Updated by** | Noelle Nagaishi |
 | **Date Created** | 2026-11-04 |
-| **Date Updated** | 2026-11-05 |
-| **Version** | 1.0 |
+| **Date Updated** | 2026-11-11 |
+| **Version** | 1.1 |
 | **LLM Used** (optional) | Claude (Anthropic): reviewed my draft for gaps |
 | **Role** | Treasury Analyst / FP&A Analyst |
 | **Audience** | CFO / Director of Treasury |
@@ -72,12 +72,12 @@ Market inputs are indicative placeholders, replaced with live market data at Sta
 | `BASIS` | Day-count denominator for both interest rates (ACT/360) | 360 | Days | Money-market convention | No change |
 
 ## 3. Tab Architecture
-The workbook has 9 tabs, in the order below. Inputs are shaded yellow, outputs are gray, and every calculation tab reads only from named ranges.
+The workbook has 9 tabs, in the order below. Cells follow the Legend/Key color code (yellow inputs, blue assumptions, green formulas, gray outputs), and every calculation tab reads only from named ranges.
 
 | Tab | Purpose | Contents |
 |---|---|---|
-| Cover | Identify the model, its owner, and the scenario being analyzed | Title, author, date, version, scenario (Scenario 23) |
-| Legend/Key | Explain how to recognize inputs, outputs and formulas | Color code: yellow = inputs, gray = outputs, black = formulas |
+| Cover | Identify the model, its owner, and the scenario being analyzed | Title, author, date, version, scenario (Scenario 23); data-provenance block listing each §2 market input with its source and date, marked indicative (placeholders until Stage 4) |
+| Legend/Key | Explain how to recognize inputs, assumptions, formulas, and outputs. | Color code: yellow = market inputs refreshed at Stage 4, blue = assumptions (FC_AMT, T_DAYS, BASIS, sensitivity STEP values), green = intermediate formulas, gray = §8 outputs|
 | Inputs | Provide the single place where model input values are changed, and all other tabs reference them through named ranges | The 11 named ranges from §2, with units and sources |
 | Summary | Give the CFO a concise view of the main results and provide calculation factors | §5.1 derived values and the §8.1 summary results |
 | Forward | Show how selling the receivable forward locks its USD value | §5.2: USD_FWD |
@@ -257,3 +257,4 @@ The line chart defined in §6.3 plots the unhedged case and the USD proceeds of 
 | 0.1 | 2026-11-04 | Noelle Nagaishi | Initial skeleton |
 | 0.2 | 2026-11-05 | Noelle Nagaishi | Drafted §1–§8 |
 | 1.0 | 2026-11-05 | Noelle Nagaishi | Revised after Claude review: call beats forward at +5%, put breakeven 1.205 → 1.2063, grid-precision check figure |
+| 1.1 | 2026-11-11 | Noelle Nagaishi | Aligned legend colors (4-color convention) and cover provenance block with the Stage 3 build contract |
