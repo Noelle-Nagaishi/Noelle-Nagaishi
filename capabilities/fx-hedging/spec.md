@@ -44,7 +44,7 @@ BRAND FORMATTING — applied per docs/_branding/design.json (v1.0.0)
 | **Updated by** | Noelle Nagaishi |
 | **Date Created** | 2026-11-04 |
 | **Date Updated** | 2026-11-11 |
-| **Version** | 1.1 |
+| **Version** | 1.2 |
 | **LLM Used** (optional) | Claude (Anthropic): reviewed my draft for gaps |
 | **Role** | Treasury Analyst / FP&A Analyst |
 | **Audience** | CFO / Director of Treasury |
@@ -60,10 +60,10 @@ Market inputs are indicative placeholders, replaced with live market data at Sta
 | Named range | Description | Value | Unit | Source today | Stage-4 source |
 |---|---|---|---|---|---|
 | `FC_AMT` | Foreign-currency receivable owed by the Danish wind developer | 16,000,000 | EUR | Scenario 23 (contract amount) | No change (fixed by contract) |
-| `S0_in` | Spot rate at inception (30 Oct 2026)  | 1.1172 | USD per EUR | ECB reference rate, 30 Oct 2026 | Live timestamped EURUSD spot quote |
+| `S0_in` | Spot rate at inception (30 Oct 2026)  | 1.1172 | USD per EUR |ECB reference rate, 30 Oct 2026 (accessed 2026-11-02) | Live timestamped EURUSD spot quote |
 | `F0_in` | Forward exchange rate for exchanging EUR to USD on the maturity date; quoted in USD per EUR| 1.1807  |  USD per EUR | Scenario 23, indicative 365-day forward | Live 1-year forward quote from a bank or dealer |
-| `R_USD` | Annual USD interest rate for the money market hedge | 4.36% | Annual % | U.S. Treasury 1-year par yield, 30 Oct 2026 | Fed H.15 or 12-month term SOFR |
-| `R_FC` | Annual foreign currency (EUR) interest rate for the money market hedge| 3.306% | Annual % | 12-month Euribor, euribor-rates.eu, 30 Oct 2026 | 12-month Euribor from EMMI or the ECB on the refresh date |
+| `R_USD` | Annual USD interest rate for the money market hedge | 4.36% | Annual % |U.S. Treasury 1-year par yield, 30 Oct 2026 (accessed 2026-11-05) | Fed H.15 or 12-month term SOFR |
+| `R_FC` | Annual foreign currency (EUR) interest rate for the money market hedge| 3.306% | Annual % | 12-month Euribor, euribor-rates.eu, 30 Oct 2026 (accessed 2026-11-05) | 12-month Euribor from EMMI or the ECB on the refresh date |
 | `K_PUT` | Strike exchange rate of the EUR put option (rate at which EUR can be sold for USD) | 1.1172 | USD per EUR | Set at spot (S0_in) per Scenario 23 | Reset to the refreshed spot |
 | `K_CALL` | Strike of the EUR call option; modeled for comparison only, not part of the recommended hedge | 1.1172 | USD per EUR | Set at spot (S0_in) per Scenario 23 | Reset to the refreshed spot |
 | `PREM_PUT` | Premium paid upfront at inception to purchase the EUR put option | 0.0245 | USD per EUR | Scenario 23 | A live dealer quote for the at-spot 1-year put |
@@ -93,6 +93,7 @@ The workbook has 9 tabs, in the order below. Cells follow the Legend/Key color c
 - **Forward parity:** The model keeps the market forward (`F0_in`) and reports its difference from the parity-implied forward (`F_IMPLIED`, §5.3) as a market finding rather than a build error.
 - **Option Premiums:** Premiums are quoted in USD per EUR, paid upfront at inception, and multiplied by the EUR notional with no contract multiplier. As a result, the $392,000 put premium becomes approximately $409,329 USD at maturity, yielding a net put floor of approximately $17,465,871 USD. This difference from the brief's $17,483,200 USD floor arises since the model includes the financing cost of the upfront premium. 
 - **Call Option:** The call option is included for comparison purposes. A collar is outside the model's scope. This deviates from the brief by treating the call as a separate comparison rather than combining it with the purchased put.
+- **Strikes:** K_PUT and K_CALL are independent contract inputs, set equal to spot at inception per Scenario 23. They do not move automatically with S0_in; at Stage 4 they are reset to the refreshed spot.
 - **Exclusions and payment assumption:** The model excludes transaction costs, bid-ask spread, counterparty and credit risk, taxes, and hedge accounting. It assumes that the customer pays the receivable in full and on time, which is consistent with the brief.
 
 ## 5. Calculation Flow
@@ -220,7 +221,7 @@ Grid precision: Do not round S_T grid values; the +5% row is 1.17306 at full pre
 
 ### 7.3 Logic checks
 - **Parity (build check):** `USD_MM` = `FC_AMT × F_IMPLIED` within $1. A failure would mean inconsistent formulas, inputs, or premature rounding between the money market and implied-forward calculations.
-- **Put kink:** at S_T = K_PUT, `USD_PUT` = `PUT_FLOOR`. This ensures that the option payoff reaches zero at the strike and continuously joins the rising-proceeds segment.
+- **Put kink:** applies only when K_PUT lies on the S_T grid (some row has S_T = K_PUT). In that row, `USD_PUT` = `PUT_FLOOR` within $1, which ensures that the option payoff reaches zero at the strike and continuously joins the rising-proceeds segment. If K_PUT is not on the grid (for example, after S0_in is refreshed but the strike is not reset), the check reports **N/A — K_PUT not on grid** rather than FAIL; the "put floor holds" check still applies to every row with S_T ≤ K_PUT.
 - **Put floor holds:** In every row where S_T ≤ K_PUT, USD_PUT must equal PUT_FLOOR within $1. No scenario may produce USD_PUT below that floor.
 - **Put breakeven:** `PUT_BREAKEVEN` ≈ 1.2063; above it, the put beats the forward.
 - **Call comparison:** Above K_CALL, USD_CALL must increase by 2 x FC_AMT x ΔS_T, since both the receivable and the call gain value. The forward must also be highest in the first 10 grid rows, with the call comparison exceeding it in the +5% row.
@@ -258,3 +259,4 @@ The line chart defined in §6.3 plots the unhedged case and the USD proceeds of 
 | 0.2 | 2026-11-05 | Noelle Nagaishi | Drafted §1–§8 |
 | 1.0 | 2026-11-05 | Noelle Nagaishi | Revised after Claude review: call beats forward at +5%, put breakeven 1.205 → 1.2063, grid-precision check figure |
 | 1.1 | 2026-11-11 | Noelle Nagaishi | Aligned legend colors (4-color convention) and cover provenance block with the Stage 3 build contract |
+| 1.2 | 2026-11-11 | Noelle Nagaishi | Put kink check applies only when K_PUT is on the grid (N/A otherwise); strikes documented as independent inputs; added source access dates. Found in Stage 3 audit: kink check failed when S0_in changed. |
