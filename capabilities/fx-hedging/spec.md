@@ -44,30 +44,30 @@ BRAND FORMATTING — applied per docs/_branding/design.json (v1.0.0)
 | **Updated by** | Noelle Nagaishi |
 | **Date Created** | 2026-11-04 |
 | **Date Updated** | 2026-11-11 |
-| **Version** | 1.2 |
-| **LLM Used** (optional) | Claude (Anthropic): reviewed my draft for gaps |
+| **Version** | 1.3 |
+| **LLM Used** (optional) | Claude (Anthropic): reviewed my draft for gaps; Stage 4 data retrieval and check review |
 | **Role** | Treasury Analyst / FP&A Analyst |
 | **Audience** | CFO / Director of Treasury |
 | **Companion Workbook** | student build |
 
 ---
 ## 1. Problem Statement
-The company is owed EUR 16,000,000 by a Danish wind developer, payable in 365 days. At the spot rate at inception of 1.1172 USD per EUR (30 Oct 2026), the receivable is worth approximately $17.9 million, but each $0.01 decline in the EUR-USD exchange rate reduces its USD value by $160,000. The goal is to protect the receivable's USD value at an acceptable cost. The model compares a forward hedge, a money market hedge, and a purchased put against leaving the receivable unhedged, with settlement spot rates within ±5% of the initial spot rate, and includes a purchased call for comparison. These results support the Stage 5 decision memo. 
+The company is owed EUR 16,000,000 by a Danish wind developer, payable in 365 days. At the spot rate at inception of 1.1127 USD per EUR (ECB, 11 Nov 2026), the receivable is worth approximately $17.8 million, but each $0.01 decline in the EUR-USD exchange rate reduces its USD value by $160,000. The goal is to protect the receivable's USD value at an acceptable cost. The model compares a forward hedge, a money market hedge, and a purchased put against leaving the receivable unhedged, with settlement spot rates within ±5% of the initial spot rate, and includes a purchased call for comparison. These results support the Stage 5 decision memo. 
 
 ## 2. Inputs: Named-Range Contract
-Market inputs are indicative placeholders, replaced with live market data at Stage 4; contract terms are fixed.
+Market inputs were refreshed with live data at Stage 4 (2026-11-11); provenance is in data/2026-11-11-offshore-wind-cable-market-data-memo.md. Contract terms are fixed.
 
 | Named range | Description | Value | Unit | Source today | Stage-4 source |
 |---|---|---|---|---|---|
 | `FC_AMT` | Foreign-currency receivable owed by the Danish wind developer | 16,000,000 | EUR | Scenario 23 (contract amount) | No change (fixed by contract) |
-| `S0_in` | Spot rate at inception (30 Oct 2026)  | 1.1172 | USD per EUR |ECB reference rate, 30 Oct 2026 (accessed 2026-11-02) | Live timestamped EURUSD spot quote |
-| `F0_in` | Forward exchange rate for exchanging EUR to USD on the maturity date; quoted in USD per EUR| 1.1807  |  USD per EUR | Scenario 23, indicative 365-day forward | Live 1-year forward quote from a bank or dealer |
-| `R_USD` | Annual USD interest rate for the money market hedge | 4.36% | Annual % |U.S. Treasury 1-year par yield, 30 Oct 2026 (accessed 2026-11-05) | Fed H.15 or 12-month term SOFR |
-| `R_FC` | Annual foreign currency (EUR) interest rate for the money market hedge| 3.306% | Annual % | 12-month Euribor, euribor-rates.eu, 30 Oct 2026 (accessed 2026-11-05) | 12-month Euribor from EMMI or the ECB on the refresh date |
-| `K_PUT` | Strike exchange rate of the EUR put option (rate at which EUR can be sold for USD) | 1.1172 | USD per EUR | Set at spot (S0_in) per Scenario 23 | Reset to the refreshed spot |
-| `K_CALL` | Strike of the EUR call option; modeled for comparison only, not part of the recommended hedge | 1.1172 | USD per EUR | Set at spot (S0_in) per Scenario 23 | Reset to the refreshed spot |
-| `PREM_PUT` | Premium paid upfront at inception to purchase the EUR put option | 0.0245 | USD per EUR | Scenario 23 | A live dealer quote for the at-spot 1-year put |
-| `PREM_CALL` | Premium for the at-spot EUR call option, paid upfront at inception; comparison only | 0.0448 | USD per EUR | Scenario 23 | Live dealer quote for the at-spot 1-year call |
+| `S0_in` | Spot rate at inception (11 Nov 2026) | 1.1127 | USD per EUR | ECB reference rate, 11 Nov 2026 (accessed 2026-11-11) | Refreshed at Stage 4 |
+| `F0_in` | Forward exchange rate for exchanging EUR to USD on the maturity date; quoted in USD per EUR | 1.1807 | USD per EUR | Scenario 23, indicative 365-day bank forward | Kept: Scenario 23 value (stated assumption); CIP check in market-data memo |
+| `R_USD` | Annual USD interest rate for the money market hedge | 4.56% | Annual % | U.S. Treasury 1-year par yield, 10 Nov 2026 (accessed 2026-11-11; no 11 Nov release, Veterans Day) | Refreshed at Stage 4 |
+| `R_FC` | Annual foreign currency (EUR) interest rate for the money market hedge | 3.217% | Annual % | 12-month Euribor, Bank of Finland (EMMI), 10 Nov 2026 (accessed 2026-11-11; 24-hour publication delay) | Refreshed at Stage 4 |
+| `K_PUT` | Strike exchange rate of the EUR put option (rate at which EUR can be sold for USD) | 1.1127 | USD per EUR | Reset to refreshed spot (S0_in) per Scenario 23 | Refreshed at Stage 4 |
+| `K_CALL` | Strike of the EUR call option; modeled for comparison only, not part of the recommended hedge | 1.1127 | USD per EUR | Reset to refreshed spot (S0_in) per Scenario 23 | Refreshed at Stage 4 |
+| `PREM_PUT` | Premium paid upfront at inception to purchase the EUR put option | 0.0245 | USD per EUR | Scenario 23 | Kept: Scenario 23 value (stated assumption) |
+| `PREM_CALL` | Premium for the at-spot EUR call option, paid upfront at inception; comparison only | 0.0448 | USD per EUR | Scenario 23 | Kept: Scenario 23 value (stated assumption) |
 | `T_DAYS` | Number of days until the receivable is due and the hedge matures | 365 | Days | Scenario 23 (contract terms) | No change (fixed by contract) |
 | `BASIS` | Day-count denominator for both interest rates (ACT/360) | 360 | Days | Money-market convention | No change |
 
@@ -76,7 +76,7 @@ The workbook has 9 tabs, in the order below. Cells follow the Legend/Key color c
 
 | Tab | Purpose | Contents |
 |---|---|---|
-| Cover | Identify the model, its owner, and the scenario being analyzed | Title, author, date, version, scenario (Scenario 23); data-provenance block listing each §2 market input with its source and date, marked indicative (placeholders until Stage 4) |
+| Cover | Identify the model, its owner, and the scenario being analyzed | Title, author, date, version, scenario (Scenario 23); data-provenance block listing each §2 market input with its source and date, marked live (refreshed at Stage 4, 2026-11-11) |
 | Legend/Key | Explain how to recognize inputs, assumptions, formulas, and outputs. | Color code: yellow = market inputs refreshed at Stage 4, blue = assumptions (FC_AMT, T_DAYS, BASIS, sensitivity STEP values), green = intermediate formulas, gray = §8 outputs|
 | Inputs | Provide the single place where model input values are changed, and all other tabs reference them through named ranges | The 11 named ranges from §2, with units and sources |
 | Summary | Give the CFO a concise view of the main results and provide calculation factors | §5.1 derived values and the §8.1 summary results |
@@ -91,7 +91,7 @@ The workbook has 9 tabs, in the order below. Cells follow the Legend/Key color c
 - **Quote convention:** All exchange rates are quoted in USD per EUR; a higher number means a stronger euro.
 - **Day count and interest:** Both R_USD and R_FC use simple interest (r x T_DAYS / BASIS, where BASIS = 360 under ACT/360). The 1-year Treasury yield is treated as an ACT/360 rate as a simplifying assumption.
 - **Forward parity:** The model keeps the market forward (`F0_in`) and reports its difference from the parity-implied forward (`F_IMPLIED`, §5.3) as a market finding rather than a build error.
-- **Option Premiums:** Premiums are quoted in USD per EUR, paid upfront at inception, and multiplied by the EUR notional with no contract multiplier. As a result, the $392,000 put premium becomes approximately $409,329 USD at maturity, yielding a net put floor of approximately $17,465,871 USD. This difference from the brief's $17,483,200 USD floor arises since the model includes the financing cost of the upfront premium. 
+- **Option Premiums:** Premiums are quoted in USD per EUR, paid upfront at inception, and multiplied by the EUR notional with no contract multiplier. As a result, the $392,000 put premium becomes approximately $410,123 USD at maturity at Stage 4 inputs, yielding a net put floor of approximately $17,393,077 USD. The financing cost of the upfront premium ($18,123) is why the FX Hedging Lab, which deducts the premium as paid, reports put proceeds $18,123 higher. 
 - **Call Option:** The call option is included for comparison purposes. A collar is outside the model's scope. This deviates from the brief by treating the call as a separate comparison rather than combining it with the purchased put.
 - **Strikes:** K_PUT and K_CALL are independent contract inputs, set equal to spot at inception per Scenario 23. They do not move automatically with S0_in; at Stage 4 they are reset to the refreshed spot.
 - **Exclusions and payment assumption:** The model excludes transaction costs, bid-ask spread, counterparty and credit risk, taxes, and hedge accounting. It assumes that the customer pays the receivable in full and on time, which is consistent with the brief.
@@ -135,7 +135,7 @@ Forward-versus-parity differences:
 F_GAP = F0_in − F_IMPLIED
 USD_GAP = USD_FWD − USD_MM
 ```
-USD_GAP ≈ +$831,000 (positive means the forward beats the money-market hedge); F_GAP ≈ 0.0519.
+USD_GAP ≈ +$853,239 (positive means the forward beats the money-market hedge); F_GAP ≈ 0.0533 at Stage 4 inputs.
 Each step is a separate cell; do not combine into one nested formula.
 
 ### 5.4 Put option hedge
@@ -167,7 +167,7 @@ USD_UNHEDGED = FC_AMT × S_T
 
 ## 6. Sensitivity Plan
 ### 6.1 Grid
-Test future spot rates (S_T) from 95% to 105% of S0_in in 1% increments, yielding 11 scenarios ranging from approximately 1.0613 to 1.1731 USD per EUR under the current inputs.
+Test future spot rates (S_T) from 95% to 105% of S0_in in 1% increments, yielding 11 scenarios ranging from approximately 1.0571 to 1.1683 USD per EUR under the Stage 4 inputs.
 
 ```
 STEP = −5%, −4%, … , +4%, +5%   (11 rows, 1% increments)
@@ -192,7 +192,7 @@ One row per S_T, with these columns:
 - **X-axis:** S_T (USD per EUR) plotted at its numerical values
 - **Y-axis:** USD proceeds at maturity
 - **Series:** USD_UNHEDGED, USD_FWD, USD_MM, USD_PUT, and USD_CALL
-- **What the CFO should see:** USD_FWD is flat and highest in every row except +5%, while USD_MM is also flat but at a lower level. At +5%, the call comparison edges past the forward by about $23,000 USD, since the call adds euro exposure rather than protection, which supports keeping it out of the recommendation. USD_PUT has a net floor of approximately $17,465,871 USD below K_PUT and a kink at S_T = K_PUT, above which proceeds rise with spot. The put's breakeven against the forward is approximately 1.2063 USD per EUR (including the premium's financing cost), outside the upper endpoint of 1.1731 (1.17306 at full precision).
+- **What the CFO should see:** USD_FWD is flat and highest in all 11 rows, while USD_MM is also flat but about $853,000 lower. At +5% the call comparison trails the forward by about $57,620; the call adds euro exposure rather than protection, which supports keeping it out of the recommendation. USD_PUT has a net floor of approximately $17,393,077 USD below K_PUT and a kink at S_T = K_PUT (1.1127, the 0% row), above which proceeds rise with spot. The put's breakeven against the forward is approximately 1.2063 USD per EUR (including the premium's financing cost), outside the upper endpoint of 1.1683 (1.168335 at full precision).
 
 ## 7. Validation Rules
 ### 7.1 Structural checks
@@ -203,28 +203,28 @@ One row per S_T, with these columns:
 - Retain full precision calculations; use formatting to round displayed values
 
 ### 7.2 Check figures (base case)
-Compare monetary check figures to the nearest dollar and F_IMPLIED to four decimal places. These figures apply to the §2 placeholder inputs and will change when Stage 4 updates them.
+Compare monetary check figures to the nearest dollar and F_IMPLIED to four decimal places. These figures apply to the Stage 4 live inputs (2026-11-11). They are typed benchmarks, not formulas: update them by hand whenever inputs change.
 
 | Output | Expected value | What a mismatch means |
 |---|---|---|
 | `USD_FWD` | $18,891,200 | Check FC_AMT, F0_in, and multiplication under the USD-per-EUR quote conversion |
-| `EUR_BORROW` | €15,481,087 | Check R_FC, T_DAYS, BASIS, and division by FC_FACTOR |
-| `USD_MM` | $18,060,026 | Check the EUR borrowing amount, spot conversion, and the USD investment accumulation |
-| `F_IMPLIED` | 1.1288 | Check the USD_FACTOR is in the numerator and FC_FACTOR is in the denominator |
-| `USD_GAP` | +$831,174 | Check that the formula is USD_FWD - USD_MM and that both underlying proceeds match |
-| `PUT_COST_T` | $409,329 | Check PREM_PUT x FC_AMT x USD_FACTOR, including the financing cost |
-| `PUT_FLOOR` | $17,465,871 | Check FC_AMT x K_PUT - PUT_COST_T |
-| `CALL_COST_T` | $748,487 | Check PREM_CALL x FC_AMT x USD_FACTOR, using the same premium treatment as the put |
-| `USD_CALL` at the +5% row (S_T = 1.17306) | $18,914,233 | Check the receivable proceeds plus the purchased call payoff, less CALL_COST_T |
+| `EUR_BORROW` | €15,494,615 | Check R_FC, T_DAYS, BASIS, and division by FC_FACTOR |
+| `USD_MM` | $18,037,961 | Check the EUR borrowing amount, spot conversion, and the USD investment accumulation |
+| `F_IMPLIED` | 1.1274 | Check the USD_FACTOR is in the numerator and FC_FACTOR is in the denominator |
+| `USD_GAP` | +$853,239 | Check that the formula is USD_FWD - USD_MM and that both underlying proceeds match |
+| `PUT_COST_T` | $410,123 | Check PREM_PUT x FC_AMT x USD_FACTOR, including the financing cost |
+| `PUT_FLOOR` | $17,393,077 | Check FC_AMT x K_PUT - PUT_COST_T |
+| `CALL_COST_T` | $749,940 | Check PREM_CALL x FC_AMT x USD_FACTOR, using the same premium treatment as the put |
+| `USD_CALL` at the +5% row (S_T = 1.168335) | $18,833,580 | Check the receivable proceeds plus the purchased call payoff, less CALL_COST_T |
 
-Grid precision: Do not round S_T grid values; the +5% row is 1.17306 at full precision (displayed as 1.1731).
+Grid precision: Do not round S_T grid values; the +5% row is 1.168335 at full precision (displayed as 1.1683).
 
 ### 7.3 Logic checks
 - **Parity (build check):** `USD_MM` = `FC_AMT × F_IMPLIED` within $1. A failure would mean inconsistent formulas, inputs, or premature rounding between the money market and implied-forward calculations.
 - **Put kink:** applies only when K_PUT lies on the S_T grid (some row has S_T = K_PUT). In that row, `USD_PUT` = `PUT_FLOOR` within $1, which ensures that the option payoff reaches zero at the strike and continuously joins the rising-proceeds segment. If K_PUT is not on the grid (for example, after S0_in is refreshed but the strike is not reset), the check reports **N/A — K_PUT not on grid** rather than FAIL; the "put floor holds" check still applies to every row with S_T ≤ K_PUT.
 - **Put floor holds:** In every row where S_T ≤ K_PUT, USD_PUT must equal PUT_FLOOR within $1. No scenario may produce USD_PUT below that floor.
 - **Put breakeven:** `PUT_BREAKEVEN` ≈ 1.2063; above it, the put beats the forward.
-- **Call comparison:** Above K_CALL, USD_CALL must increase by 2 x FC_AMT x ΔS_T, since both the receivable and the call gain value. The forward must also be highest in the first 10 grid rows, with the call comparison exceeding it in the +5% row.
+- **Call comparison:** Above K_CALL, USD_CALL must increase by 2 x FC_AMT x ΔS_T, since both the receivable and the call gain value. The forward must also be highest in the first 10 grid rows. Call minus forward at the +5% row is reported as INFO, not graded: it is a market outcome that depends on inputs, not a test of model logic (changed at Stage 4, when it turned negative).
 - **Flat lines:** USD_FWD and USD_MM must each remain identical across all 11 rows since neither depends on S_T.
 
 ## 8. Outputs
@@ -260,3 +260,4 @@ The line chart defined in §6.3 plots the unhedged case and the USD proceeds of 
 | 1.0 | 2026-11-05 | Noelle Nagaishi | Revised after Claude review: call beats forward at +5%, put breakeven 1.205 → 1.2063, grid-precision check figure |
 | 1.1 | 2026-11-11 | Noelle Nagaishi | Aligned legend colors (4-color convention) and cover provenance block with the Stage 3 build contract |
 | 1.2 | 2026-11-11 | Noelle Nagaishi | Put kink check applies only when K_PUT is on the grid (N/A otherwise); strikes documented as independent inputs; added source access dates. Found in Stage 3 audit: kink check failed when S0_in changed. |
+| 1.3 | 2026-11-11 | Noelle Nagaishi | Stage 4: §2 refreshed with live inputs (S0 1.1127, R_USD 4.56%, R_FC 3.217%; strikes reset); §7.2 benchmarks updated to live inputs; §7.3 call-vs-forward at +5% changed from graded check to INFO; §1, §4, §5.3, §6.1, §6.3 figures updated. |
