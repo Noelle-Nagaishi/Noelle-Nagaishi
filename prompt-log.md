@@ -87,3 +87,21 @@ Claude found that spec v1.0 didn't meet the Stage 3 contract (3-color legend, no
 
 **How the error was caught:**
 I found the kink failure and the missing access dates while auditing the workbook in Excel and fixed both in spec v1.2 before regenerating. Claude pointed out that my first stress test had changed F0_in, and I reran it with S0_in. Claude's review of the audit note caught the inconsistency about the access dates, and I removed it.
+
+## 2026-11-11 (Stage 4)
+
+**What I asked:**
+I asked Claude to walk me through Stage 4: retrieve live market data, compute the CIP-implied forward, check my populated workbook, cross-check against the FX Hedging Lab, and review my market-data memo and spec v1.3. I used Codex (OpenAI) to revise the memo and check figures.
+
+**What AI produced:**
+Claude retrieved the ECB spot (1.1127, 11 Nov), 1-year Treasury (4.56%, 10 Nov), and 12-month Euribor (3.217%, 10 Nov); computed the CIP-implied forward (1.1274, a +533-pip / $853,239 gap to the 1.1807 quote); predicted which workbook checks would fail; ran the FX Lab with my inputs; and reviewed my workbook files, memo drafts, and spec edits. I chose the as-of dates, entered the inputs, decided how to fix the checks, and decided not to request a requote.
+
+**What was wrong, if anything:**
+- I left S0_in at 1.1172 while updating the other inputs, so the checks showed 8 FAIL instead of the expected 9.
+- The §7.2 expected values were typed for the placeholder inputs, and the "call beats forward at +5%" check tested a market outcome rather than model logic.
+- Claude gave the ECB fixing time as 14:15 CET; the ECB's published schedule says about 14:10 CET.
+- Codex's first memo draft marked completed work as "pending verification", and my spec edit accidentally deleted the F0_in row from §2.
+- E38 was pasted with leading spaces, so it was stored as text, not a formula.
+
+**How the error was caught:**
+Claude inspected my uploaded workbook and found S0_in still at 1.1172, then later found E38 stored as text. Codex caught the 14:10 time while checking ECB sources. Claude's memo review caught the stale "pending" language, and its spec review caught the missing F0_in row.
