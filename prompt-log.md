@@ -70,3 +70,20 @@ Claude explained the eight required sections, gave me section templates and outl
 
 **How the error was caught:**
 Claude's review caught the §6 and §2 problems. I caught Claude's check-figure error myself by recomputing the +5% row at full precision (1.1172 × 1.05 = 1.17306), which gives USD_CALL = $18,914,233. I replaced the off-grid check in §7.2 and added a rule to prevent rounding of grid values.
+
+## 2026-11-11
+
+**What I asked:**
+I asked Claude to walk me through Stage 3, check my spec against the build contract, build model.xlsx from my committed spec, and review my audit. I also used Codex (OpenAI) to draft and revise the audit note.
+
+**What AI produced:**
+Claude found that spec v1.0 didn't meet the Stage 3 contract (3-color legend, no cover provenance block); I fixed both in v1.1 (82b99c5). Claude built the 9-tab workbook from v1.1 with 37 named ranges, formulas only, the sensitivity table and chart, and 20 live §7 checks. After my audit, I revised the spec to v1.2 (e414f10), Claude regenerated the workbook, and I committed it (6da460d). Codex revised the audit note from my audit findings, and Claude reviewed it before I committed it (ccb0b90).
+
+**What was wrong, if anything:**
+- When I changed S0_in to 1.10, the put-kink check failed because K_PUT is a typed input that doesn't move with spot, so no grid row landed on the strike. This was a spec defect: §7.3 assumed K_PUT is always on the grid.
+- The spec had no source access dates, so the workbook's sources table was incomplete.
+- My first stress test changed F0_in instead of S0_in, so it didn't test whether the grid moved.
+- An early audit-note draft said the access dates still needed confirmation even though the spec stated them as fact.
+
+**How the error was caught:**
+I found the kink failure and the missing access dates while auditing the workbook in Excel and fixed both in spec v1.2 before regenerating. Claude pointed out that my first stress test had changed F0_in, and I reran it with S0_in. Claude's review of the audit note caught the inconsistency about the access dates, and I removed it.
