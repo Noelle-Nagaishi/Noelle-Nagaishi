@@ -1,5 +1,6 @@
 ---
 type: analysis
+status: committed
 title: "Validation Analysis: Independent LLM Run vs. Workbook"
 engagement: fx-hedging
 scenario: offshore-wind-cable
@@ -23,20 +24,22 @@ date: 2026-11-16
 
 | Strategy | S_T | LLM | Workbook (full precision) | Difference | Diagnosis |
 |---|---|---:|---:|---:|---|
-| Unhedged | 1.057065 (−5%) | 16,913,040 | 16,913,040.00 | 0 | |
-| | 1.1127 (0%) | 17,803,200 | 17,803,200.00 | 0 | |
-| | 1.168335 (+5%) | 18,693,360 | 18,693,360.00 | 0 | |
-| Forward | all rows | 18,891,200 | 18,891,200.00 | 0 | |
-| Money market | all rows | 18,037,961 | 18,037,960.63 | rounding | |
-| Put | −5% / 0% | 17,393,077 | 17,393,076.53 | rounding | |
-| | +5% | 18,283,237 | 18,283,236.53 | rounding | |
-| Call | −5% | 16,163,100 | 16,163,099.95 | rounding | |
-| | 0% | 17,053,260 | 17,053,259.95 | rounding | |
-| | +5% | 18,833,580 | 18,833,579.95 | rounding | |
+| Unhedged | 1.057065 (−5%) | 16,913,040 | 16,913,040.00 | 0 |Exact match. |
+| | 1.1127 (0%) | 17,803,200 | 17,803,200.00 | 0 |Exact match. |
+| | 1.168335 (+5%) | 18,693,360 | 18,693,360.00 | 0 |Exact match. |
+| Forward | all rows | 18,891,200 | 18,891,200.00 | 0 |Exact match. |
+| Money market | all rows | 18,037,961 | 18,037,960.63 | rounding |Matches when rounded to the nearest dollar. |
+| Put | −5% / 0% | 17,393,077 | 17,393,076.53 | rounding |Matches when rounded to the nearest dollar. |
+| | +5% | 18,283,237 | 18,283,236.53 | rounding |Matches when rounded to the nearest dollar. |
+| Call | −5% | 16,163,100 | 16,163,099.95 | rounding |Matches when rounded to the nearest dollar. |
+| | 0% | 17,053,260 | 17,053,259.95 | rounding |Matches when rounded to the nearest dollar. |
+| | +5% | 18,833,580 | 18,833,579.95 | rounding |Matches when rounded to the nearest dollar. |
+
+No discrepancy in this comparison is an LLM error, workbook error, or spec ambiguity; all nonzero differences are display rounding of the LLM’s whole-dollar output. The forward and unhedged calculations produce whole-dollar results directly. The money-market and option calculations involve interest factors that produce fractional-dollar results.
 
 ## 3. Hand-verification table
 
-Calculator arithmetic, named-range notation, no Excel.
+Calculator arithmetic, named-range notation, no Excel. Calculations retained full precision internally; the intermediate values shown below are rounded for display.
 
 ```
 T_YRS = 365 / 360 = 1.013888889
@@ -60,9 +63,19 @@ USD_PUT      = USD_UNHEDGED + PUT_PAYOFF − PUT_COST_T
              = 16,913,040.00 + 890,160.00 − 410,123.47                             = $17,393,076.53
 ```
 
-**Reconciliation:** 
+**Reconciliation:** The hand calculations reproduce the workbook’s forward, money-market, and −5% put outcomes to the cent. Every LLM result in Section 2 matches the corresponding workbook result when rounded to the nearest dollar. The comparison shows no numerical discrepancy beyond display rounding.
 
 ## 4. Spec retrospective
+
+The LLM matched the sampled workbook outcomes, but my spec exposed expected results in §§6.3 and 7.2, so this was not a blind numerical validation.
+
+**Risk posture.** The LLM said the put was worth considering “only if the CFO wants to keep upside,” consistent with the fact that neither document stated the firm’s risk tolerance. It left the choice conditional instead of resolving the tradeoff between guaranteed proceeds, premium expense, and upside participation. That gap matters for Section D: my recommendation needs an explicit decision criterion. In v2, I would add a required risk-posture input covering minimum acceptable USD proceeds, willingness to pay an upfront premium, and preference for upside participation. If those inputs are missing, the spec would require a conditional recommendation and identify the missing decision.
+
+**Confidence in the requote inference.** The LLM predicted that a fresh forward quote would land much closer to 1.1274. My memo’s comparison of the retained 1.1807 scenario quote with the interest-rate-implied benchmark, including the difficult-to-defend implied USD rate of 9.44%, gave that inference a basis. The direction is consistent with parity, but the LLM stated it more confidently than my documents support. In v2, I would state that the implied forward is a benchmark, not a forecast of an executable quote, and require an executable quote before replacing F0_in.
+
+**Upfront premium versus maturity cost.** The LLM described the put as costing about $410K. That is the maturity-equivalent cost, $410,123.47; the upfront premium is $392,000, calculated as 0.0245 × 16,000,000. The arithmetic was correct, but the recommendation blurred the timing of the cash outflow. My output requirements did not make the distinction prominent enough. In v2, I would require separate named outputs for the upfront premium and its maturity-equivalent cost, with both amounts labeled in the CFO recommendation. The $18,123.47 difference represents the premium’s financing or opportunity cost over the hedge period.
+
+**Expected-result leakage.** The LLM explicitly referred to check figures supplied in the spec. Because my spec included those answers, agreement with the workbook could reflect checking against supplied targets as well as independent calculation. In v2, I would move expected numerical results into a separate validation document withheld during blind runs, while retaining the calculation rules and structural checks in the spec.
 
 ## Appendix A: Raw LLM output
 
