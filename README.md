@@ -8,8 +8,20 @@ Following graduation, I plan to continue developing my background in accounting,
 
 ## Engagements
 
-Projects and engagements will be added here as they are completed.
+### FX transaction hedging: offshore-wind-cable (FIN 321, Fall 2026)
+
+A U.S. offshore-wind cable manufacturer is owed EUR 16,000,000 by a Danish wind developer in 365 days. I compared a forward, a money-market hedge, a purchased put, a purchased call and leaving the receivable unhedged, using live market data. I recommended the forward, subject to a fresh executable quote.
+
+| Stage | Artifact |
+|---|---|
+| 1. Executive brief | [docs/briefs/2026-10-23-offshore-wind-cable-hedge-brief.md](docs/briefs/2026-10-23-offshore-wind-cable-hedge-brief.md) |
+| 2. Model specification | [capabilities/fx-hedging/spec.md](capabilities/fx-hedging/spec.md) |
+| 3. AI-assisted build + audit | [capabilities/fx-hedging/model.xlsx](capabilities/fx-hedging/model.xlsx) · [audit note](analysis/2026-11-11-offshore-wind-cable-build-audit-analysis.md) |
+| 4. Market data + population | [data/2026-11-11-offshore-wind-cable-market-data-memo.md](data/2026-11-11-offshore-wind-cable-market-data-memo.md) |
+| 5. Validation + decision memo | [validation analysis](analysis/2026-11-16-offshore-wind-cable-validation-analysis.md) · [decision memo](docs/decisions/2026-11-16-offshore-wind-cable-hedge-decision-memo.md) |
+
+Instructor feedback: [docs/reviews/](docs/reviews/) · AI use: [prompt-log.md](prompt-log.md)
 
 ---
 
-*Drafted with help from ChatGPT (OpenAI, 2026); reviewed and edited by me.*
+*Bio drafted with help from ChatGPT (OpenAI, 2026); Engagements section drafted with help from Claude (Anthropic, 2026). Reviewed and edited by me.*
