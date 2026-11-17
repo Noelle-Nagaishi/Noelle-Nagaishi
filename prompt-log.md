@@ -105,3 +105,28 @@ Claude retrieved the ECB spot (1.1127, 11 Nov), 1-year Treasury (4.56%, 10 Nov),
 
 **How the error was caught:**
 Claude inspected my uploaded workbook and found S0_in still at 1.1172, then later found E38 stored as text. Codex caught the 14:10 time while checking ECB sources. Claude's memo review caught the stale "pending" language, and its spec review caught the missing F0_in row.
+
+
+## 2026-11-16 to 2026-11-17 (Stage 5)
+
+**What I asked:**
+I asked Claude to walk me through Stage 5: set up the independent LLM run, check my comparison and hand-verification tables, review my validation analysis and decision memo, summarize my instructor's four feedback pull requests, and draft the README updates and this log entry. I ran the independent test myself in a separate, fresh Claude chat, giving it only my spec and market-data memo. I used Codex (OpenAI) to revise the validation analysis and the memo.
+
+**What AI produced:**
+- The fresh Claude session computed every strategy at all 11 grid points and recommended the forward, subject to a fresh quote.
+- The review session (Claude) gave me the workbook figures for the comparison table, a skeleton for the validation doc, and line-by-line critiques of my drafts. It verified my hand calculations, my call breakevens (1.1596 and 1.1701), and the funding-spread table.
+- Claude drafted the Engagements section of the top-level README, the fx-hedging README update, and this entry; I reviewed and edited them.
+- I diagnosed the discrepancies, did the hand verification on a calculator, wrote the retrospective, chose the risk-posture assumptions, and made the recommendation.
+
+**What was wrong, if anything:**
+- The independent run matched the workbook only after rounding to the nearest dollar, but this was not a blind test: my spec printed the expected results in §6.3 and §7.2, and the LLM said it checked against them.
+- The LLM had to guess the firm's risk posture, stated its prediction of a requote near 1.1274 more confidently than my documents support, and called the put's cost "$410K" when the upfront premium is $392,000.
+- My first retrospective draft spent half its length praising the run, and four of its five v2 fixes described things spec v1.3 already does.
+- When I reformatted the hand-verification table, I dropped the arithmetic from the money-market steps. An example "..." was pasted in verbatim; the appendix initially contained my prompt instead of the LLM's output, and one line of the appendix was reworded.
+- My first memo draft used "Validation" and "Spec retrospective" as Sections C and E instead of the required sensitivity interpretation and executive justification. It ranked the put above unhedged at the unchanged spot, which is wrong ($17,393,077 vs. $17,803,200), and gave the forward's cushion at parity as $236,800 instead of about $235,000.
+- I had not answered the falsifier question from feedback PRs #1–#2 or the call-breakeven and corporate-funding-rate questions from PR #4.
+- I started pasting the new Engagements section into `docs/decisions/README.md` instead of the top-level README, and the README footer credited only ChatGPT after Claude drafted the new section.
+- Claude made two errors: it said my repo had no one-line description (it did), and it first called the LLM's requote prediction "unsupported" before correcting that to "overconfident."
+
+**How the error was caught:**
+Claude's reviews caught the retrospective, formatting, appendix, memo-structure, ranking, and $236,800 problems by checking my drafts against the stage rubric, my spec, and the workbook. Claude also found the four unmerged feedback PRs. I merged them and answered all three open questions in the memo. Claude caught the wrong README edit from my screenshot before I committed, and flagged the footer. I caught Claude's description error from my repo screenshot. Claude corrected its own "unsupported" claim after reviewing my retrospective.
